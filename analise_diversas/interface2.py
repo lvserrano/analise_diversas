@@ -10,7 +10,13 @@ st.set_page_config(
 
 # Função para carregar os arquivos .parquet
 def carregar_dados():
-    caminho_relatorio_tratado = "..\\files\\tratado\\relatorio_tratado.csv"
+    caminho_relatorio_tratado = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "files",
+        "tratado",
+        "relatorio_tratado.csv",
+    )
+    st.write(f"Path: {caminho_relatorio_tratado}")
     if not os.path.exists(caminho_relatorio_tratado):
         raise FileNotFoundError(f"Arquivo não encontrado: {caminho_relatorio_tratado}")
     return pd.read_csv(caminho_relatorio_tratado, sep=";")
