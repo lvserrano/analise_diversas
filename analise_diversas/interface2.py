@@ -3,6 +3,8 @@ import streamlit as st
 import os
 import requests
 from io import StringIO
+import tempfile
+
 
 # Configuração inicial da aplicação
 st.set_page_config(
@@ -25,6 +27,7 @@ def carregar_dados():
 
 
 # Função para carregar os arquivos mensais dinamicamente
+# Função para carregar os arquivos mensais dinamicamente
 def carregar_dados_mensais(data_inicial, data_final):
     base_url = "https://grupovivenci.com.br/tratado/"
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
@@ -37,13 +40,26 @@ def carregar_dados_mensais(data_inicial, data_final):
         try:
             response = requests.get(url_arquivo, headers=headers)
             response.raise_for_status()  # Verifica se a resposta HTTP foi bem-sucedida
-            buffer = StringIO(response.content.decode("utf-8"))
-            arquivo = pd.read_parquet(
-                buffer, engine="pyarrow"
-            )  # Lê o arquivo como Parquet
+
+            # Salvar o conteúdo como um arquivo temporário
+            with tempfile.NamedTemporaryFile(
+                delete=False, suffix=".parquet"
+            ) as temp_file:
+                temp_file.write(response.content)
+                temp_file_path = temp_file.name
+
+            # Ler o arquivo Parquet temporário
+            arquivo = pd.read_parquet(temp_file_path)
             arquivos_mensais.append(arquivo)
         except requests.exceptions.RequestException:
             st.warning(f"Arquivo não encontrado ou inacessível: {url_arquivo}")
+        except Exception as e:
+            st.error(f"Erro ao processar o arquivo {url_arquivo}: {e}")
+
+    if arquivos_mensais:
+        return pd.concat(arquivos_mensais, ignore_index=True)
+    else:
+        return pd.DataFrame()
 
     if arquivos_mensais:
         return pd.concat(arquivos_mensais, ignore_index=True)
