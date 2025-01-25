@@ -11,7 +11,10 @@ st.set_page_config(
 # Função para carregar os arquivos .parquet
 def carregar_dados():
     caminho_relatorio_tratado = os.path.join(
-        os.path.dirname(__file__), "files/tratado/relatorio_tratado.csv"
+        os.path.dirname(os.path.abspath(__file__)),
+        "files",
+        "tratado",
+        "relatorio_tratado.csv",
     )
 
     if not os.path.exists(caminho_relatorio_tratado):
