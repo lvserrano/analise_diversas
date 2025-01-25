@@ -26,14 +26,24 @@ def carregar_dados():
 
 # Função para carregar os arquivos mensais dinamicamente
 def carregar_dados_mensais(data_inicial, data_final):
-    caminho_pasta = "../files/tratado"
+    base_url = "https://grupovivenci.com.br/tratado/"
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
     arquivos_mensais = []
+
     for mes in pd.date_range(start=data_inicial, end=data_final, freq="MS").strftime(
         "%Y-%m"
     ):
-        caminho_arquivo = os.path.join(caminho_pasta, f"{mes}_tratado.parquet")
-        if os.path.exists(caminho_arquivo):
-            arquivos_mensais.append(pd.read_parquet(caminho_arquivo))
+        url_arquivo = f"{base_url}{mes}_tratado.parquet"
+        try:
+            response = requests.get(url_arquivo, headers=headers)
+            response.raise_for_status()  # Verifica se a resposta HTTP foi bem-sucedida
+            buffer = StringIO(response.content.decode("utf-8"))
+            arquivo = pd.read_parquet(
+                buffer, engine="pyarrow"
+            )  # Lê o arquivo como Parquet
+            arquivos_mensais.append(arquivo)
+        except requests.exceptions.RequestException:
+            st.warning(f"Arquivo não encontrado ou inacessível: {url_arquivo}")
 
     if arquivos_mensais:
         return pd.concat(arquivos_mensais, ignore_index=True)
