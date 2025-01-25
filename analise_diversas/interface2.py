@@ -1,6 +1,8 @@
 import pandas as pd
 import streamlit as st
 import os
+import requests
+from io import StringIO
 
 # Configuração inicial da aplicação
 st.set_page_config(
@@ -10,16 +12,16 @@ st.set_page_config(
 
 # Função para carregar os arquivos .parquet
 def carregar_dados():
-    caminho_relatorio_tratado = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "files",
-        "tratado",
-        "relatorio_tratado.csv",
-    )
-    st.write(f"Path: {caminho_relatorio_tratado}")
-    if not os.path.exists(caminho_relatorio_tratado):
-        raise FileNotFoundError(f"Arquivo não encontrado: {caminho_relatorio_tratado}")
-    return pd.read_csv(caminho_relatorio_tratado, sep=";")
+    url = "https://grupovivenci.com.br/relatorio_tratado.csv"
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()  # Levanta um erro para códigos de status HTTP inválidos
+        dados = pd.read_csv(StringIO(response.text), sep=";")
+        return dados
+    except requests.exceptions.RequestException as e:
+        st.error(f"Erro ao carregar dados da URL: {url}")
+        raise e
 
 
 # Função para carregar os arquivos mensais dinamicamente
