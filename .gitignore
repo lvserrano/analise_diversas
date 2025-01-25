@@ -1,4 +1,4 @@
-files/tratado/*.csv
+files/tratado/[0-9]*.csv
 files/2024/cupons/*
 files/2024/desconto/*
 files/2024/relatorios/*
