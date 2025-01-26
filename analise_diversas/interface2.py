@@ -84,6 +84,7 @@ def correlacionar_vendas(promocoes, vendas):
     # Filtrar vendas para remover itens com "P" na coluna Promoção
     vendas = vendas[vendas["Promoção"] != "P"]
     vendas = vendas[vendas["Promoção"] != "R"]
+    vendas = vendas[vendas["Promoção"] != "D"]
 
     correlacionados = pd.merge(
         promocoes, vendas, on="SKU", how="inner", suffixes=("_promo", "_venda")
