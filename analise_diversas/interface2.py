@@ -61,11 +61,6 @@ def carregar_dados_mensais(data_inicial, data_final):
     else:
         return pd.DataFrame()
 
-    if arquivos_mensais:
-        return pd.concat(arquivos_mensais, ignore_index=True)
-    else:
-        return pd.DataFrame()
-
 
 # Função para filtrar os dados de acordo com o intervalo de datas
 def filtrar_por_data(dados, data_inicial, data_final):
@@ -88,6 +83,7 @@ def correlacionar_vendas(promocoes, vendas):
 
     # Filtrar vendas para remover itens com "P" na coluna Promoção
     vendas = vendas[vendas["Promoção"] != "P"]
+    vendas = vendas[vendas["Promoção"] != "R"]
 
     correlacionados = pd.merge(
         promocoes, vendas, on="SKU", how="inner", suffixes=("_promo", "_venda")
